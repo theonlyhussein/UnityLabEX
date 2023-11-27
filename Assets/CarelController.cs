@@ -13,72 +13,36 @@ public class CarelController : MonoBehaviour
     public GameObject alphabet;
     public ProgramHandler handler; // Handles the program logic
 
-    private void Start()
+    private Rigidbody rb;
+    private float moveInterval = 5f;  // Time interval to move the object
+    private float totalTime = 30f;    // Total time to move the object
+    private float timer = 0f;         // Timer to keep track of elapsed time
+    private float blockDistance = 1f; // Distance to move in one block
+
+    void Start()
     {
-        // Initialize the handler and update Carel's move direction at the start
-        handler = alphabet.GetComponent<ProgramHandler>();
-        UpdateMoveDirection();
+        // Get the Rigidbody component attached to the GameObject
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        // Check for user input (space key) to start executing commands
-        if (Input.GetKeyDown("space"))
-        {
-            Debug.Log(gameObject.transform.eulerAngles.y);
-            StartCoroutine(ExecuteCommandsCoroutine());
-        }
-    }
+        // Increment the timer each frame
+        timer += Time.deltaTime;
 
-    public IEnumerator ExecuteCommandsCoroutine()
-    {
-        // This coroutine executes a sequence of commands
-        String[] c = handler.getCommand();
-        foreach (var command in c)
+        // Check if the total time has not elapsed
+        if (timer <= totalTime)
         {
-            // Execute different actions based on the command
-            switch (command)
+            // Check if it's time to move the object
+            if (timer % moveInterval <= Time.deltaTime)
             {
-                case "Forward":
-                    yield return StartCoroutine(MoveCarlTest());
-                    break;
-                case "Right":
-                    yield return StartCoroutine(TurnRight());
-                    break;
-                case "Left":
-                    yield return StartCoroutine(TurnLeft());
-                    break;
+                // Calculate the force needed to move the object forward
+                Vector3 force = transform.forward * blockDistance / moveInterval;
+
+                // Apply the force to the Rigidbody
+                rb.AddForce(force, ForceMode.VelocityChange);
             }
-            yield return new WaitForSeconds(1f); // Wait for one second
         }
     }
-
-    private Vector3 moveDirection;
-    private void UpdateMoveDirection()
-    {
-        // Update Carel's movement direction based on its current rotation
-        Quaternion rotation = carel.transform.rotation;
-        // Logic to determine the move direction
-    }
-
-    public IEnumerator MoveCarlTest()
-    {
-        // Move Carel forward by a certain number of steps
-        // Logic to move Carel
-    }
-
-    public float turnAngle = 90f;
-    public float turnDuration = 5f;
-
-    public IEnumerator TurnLeft()
-    {
-        // Turn Carel to the left over a duration
-        // Logic to turn left
-    }
-
-    public IEnumerator TurnRight()
-    {
-        // Turn Carel to the right over a duration
-        // Logic to turn right
-    }
+}
 }
